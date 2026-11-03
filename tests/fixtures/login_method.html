@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <title>auth_magiclink login method fixture</title>
+</head>
+<body>
+    <section id="exclusive-boost-union">
+        <div id="login-method-idp" class="theme_boost_union-loginmethod">
+            <div class="login-identityproviders">
+                <h2 class="h5 login-heading">Melden Sie sich mit Ihrem IDP-Konto an.</h2>
+                <div class="login-identityprovider mb-3">
+                    <a class="btn" href="/auth/magiclink/login.php?returnurl=%2Fcourse%2Fview.php%3Fid%3D7">
+                        Magic Link per E-Mail erhalten
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="exclusive-core">
+        <div class="login-identityproviders">
+            <h2 class="login-heading">Potential identity providers</h2>
+            <a class="btn login-identityprovider-btn" href="/auth/magiclink/login.php">
+                Magic Link per E-Mail erhalten
+            </a>
+        </div>
+    </section>
+
+    <section id="mixed-providers">
+        <div class="login-identityproviders">
+            <h2 class="login-heading">Mit einem anderen Konto anmelden</h2>
+            <div class="login-identityprovider">
+                <a href="/auth/magiclink/login.php">Magic Link per E-Mail erhalten</a>
+            </div>
+            <div class="login-identityprovider">
+                <a href="https://identity.example.test/oauth2">Example OAuth</a>
+            </div>
+        </div>
+    </section>
+
+    <script type="module">
+        import {init} from '../../amd/src/login_method.js';
+
+        init({
+            path: '/auth/magiclink/login.php',
+            heading: 'Ohne Passwort anmelden',
+            description: 'Wir senden Ihnen einen einmalig verwendbaren Anmeldelink per E-Mail.',
+        });
+        window.requestAnimationFrame(() => {
+            document.body.dataset.fixtureReady = '1';
+        });
+    </script>
+</body>
+</html>

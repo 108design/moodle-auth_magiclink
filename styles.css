@@ -1,0 +1,35 @@
+/* Compact cell-bordered licence tables use the suite-wide natural-width presentation. */
+body[id^="page-auth-magiclink-"] table.generaltable.auth-magiclink-compact-table > :not(caption) > * > *,
+body[id^="page-admin-auth-magiclink-"] table.generaltable.auth-magiclink-compact-table > :not(caption) > * > * {
+    border-width: 1px;
+}
+
+body[id^="page-auth-magiclink-"] table.generaltable.auth-magiclink-compact-table > thead > tr > th,
+body[id^="page-admin-auth-magiclink-"] table.generaltable.auth-magiclink-compact-table > thead > tr > th {
+    background-color: var(--local-108design-surface-muted, #e9ecef);
+}
+
+.auth-magiclink-compact-action-table > thead > tr > th:last-child,
+.auth-magiclink-compact-action-table > tbody > tr > td:last-child {
+    text-align: center !important;
+}
+
+.auth-magiclink-license-table-wrap {
+    margin-top: 1.5rem;
+}
+
+.auth-magiclink-license-table {
+    margin-bottom: 0;
+}
+
+.auth-magiclink-license-action {
+    align-items: center;
+    display: inline-flex;
+    justify-content: center;
+    min-height: 2rem;
+    min-width: 2rem;
+}
+
+.auth-magiclink-license-action .icon {
+    margin: 0;
+}
