@@ -1,4 +1,8 @@
-# Magic link authentication
+<p align="center">
+  <img src="docs/branding/logo.svg" alt="Magic Link" width="125">
+</p>
+
+# Magic Link
 
 `auth_magiclink` provides a general passwordless Moodle sign-in by email. When enabled, it adds a Magic Link entry to
 Moodle's standard login page and preserves the destination the user originally requested.
@@ -19,8 +23,7 @@ and link directly to the corresponding panel topic.
 
 Install as `auth/magiclink`, complete the Moodle upgrade, then enable Magic Link
 under **Site administration > Plugins > Authentication > Manage authentication**.
-Open its Settings page to configure sign-in and account creation. This Marketplace
-distribution requires no license activation or 108design account.
+Open its Settings page to configure sign-in and account creation. This distribution requires no license activation or 108design account.
 
 ## Moodle MFA
 
@@ -33,6 +36,18 @@ We recommend keeping **Allow Site Administrators** disabled, especially when usi
 Keep administrator sign-in protected with a password and an authenticator app or security key. Where Moodle's
 trusted-device factor is enabled, link confirmation can offer the native configured trust duration; device trust
 is saved only after the complete MFA policy succeeds.
+
+## Screenshots
+
+![Passwordless sign-in by email](docs/screenshots/magic-link-sign-in.jpg)
+
+![Magic Link settings and guidance](docs/screenshots/magic-link-settings.jpg)
+
+## Support
+
+Report reproducible problems in the [issue tracker](https://github.com/108design/moodle-auth_magiclink-marketplace/issues).
+Include your Moodle and PHP versions, the active theme, and the steps needed to reproduce the problem.
+Remove personal data and sign-in links from reports.
 
 ## License
 
