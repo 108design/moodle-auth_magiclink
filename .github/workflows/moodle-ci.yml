@@ -77,14 +77,19 @@ jobs:
       - name: Upgrade savepoints
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: moodle-plugin-ci savepoints
-      - name: Keep PHPUnit output separate from session headers
+      - name: Prepare session-safe PHPUnit bootstrap
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import json
           import xml.etree.ElementTree as ET
           config = Path('moodle/public/auth/magiclink/phpunit.xml')
           tree = ET.parse(config)
+          bootstrap = (config.parent / tree.getroot().get('bootstrap')).resolve()
+          wrapper = config.parent / 'ci-bootstrap.php'
+          wrapper.write_text("<?php\nob_start();\nrequire " + json.dumps(str(bootstrap)) + ";\n")
+          tree.getroot().set('bootstrap', str(wrapper.resolve()))
           tree.getroot().set('stderr', 'true')
           tree.write(config, encoding='utf-8', xml_declaration=True)
           PY
