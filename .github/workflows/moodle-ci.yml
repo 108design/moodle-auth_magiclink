@@ -77,6 +77,17 @@ jobs:
       - name: Upgrade savepoints
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: moodle-plugin-ci savepoints
+      - name: Keep PHPUnit output separate from session headers
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          config = Path('moodle/public/auth/magiclink/phpunit.xml')
+          tree = ET.parse(config)
+          tree.getroot().set('stderr', 'true')
+          tree.write(config, encoding='utf-8', xml_declaration=True)
+          PY
       - name: PHPUnit
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: moodle-plugin-ci phpunit --testdox --fail-on-warning --fail-on-skipped 2>&1 | tee phpunit.log
