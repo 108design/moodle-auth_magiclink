@@ -28,7 +28,8 @@ final class settings_help {
         $PAGE->requires->css(new \moodle_url('/auth/magiclink/styles/context_help.css', [
             'rev' => get_config('auth_magiclink', 'version'),
         ]));
-        $module = (int)$CFG->version < 2025041400 ? 'context_help_legacy' : 'context_help';
+        $module = (int)$CFG->version < 2025041400 ? 'context_help_legacy'
+            : ((int)$CFG->version >= 2026100500 ? 'context_help_53' : 'context_help');
         $PAGE->requires->js_call_amd('auth_magiclink/context_help_form', 'init');
         $PAGE->requires->js_call_amd('auth_magiclink/' . $module, 'init', [[
             'topic' => optional_param('magiclinkhelp', '', PARAM_ALPHA),
