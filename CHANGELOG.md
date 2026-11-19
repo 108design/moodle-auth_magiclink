@@ -1,3 +1,7 @@
+## 1.1.2 — 20 November 2026
+
+Fix language-file syntax, emit the native account creation event, and queue sign-in email delivery. Moodle cron sends queued email. Correct repository and documentation image links.
+
 # Changelog
 
 ## 1.0.0 — 4 November 2026

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/branding/logo.svg" alt="Magic Link" width="125">
+  <img src="https://raw.githubusercontent.com/108design/moodle-auth_magiclink/main/docs/branding/logo.svg" alt="Magic Link" width="125" height="125">
 </p>
 
 # Magic Link
@@ -24,6 +24,7 @@ and link directly to the corresponding panel topic.
 Install as `auth/magiclink`, complete the Moodle upgrade, then enable Magic Link
 under **Site administration > Plugins > Authentication > Manage authentication**.
 Open its Settings page to configure sign-in and account creation. This distribution requires no license activation or 108design account.
+Run Moodle cron every minute so sign-in emails are sent promptly.
 
 ## Moodle MFA
 
@@ -39,9 +40,9 @@ is saved only after the complete MFA policy succeeds.
 
 ## Screenshots
 
-![Passwordless sign-in by email](docs/screenshots/magic-link-sign-in.jpg)
+![Passwordless sign-in by email](https://raw.githubusercontent.com/108design/moodle-auth_magiclink/main/docs/screenshots/magic-link-sign-in.jpg)
 
-![Magic Link settings and guidance](docs/screenshots/magic-link-settings.jpg)
+![Magic Link settings and guidance](https://raw.githubusercontent.com/108design/moodle-auth_magiclink/main/docs/screenshots/magic-link-settings.jpg)
 
 ## Support
 

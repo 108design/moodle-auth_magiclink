@@ -14,7 +14,7 @@
  */
 $string['pluginname'] = 'Magic-Link-Anmeldung';
 $string['auth_description'] = 'Allgemeine passwortlose Moodle-Anmeldung und optionale Kontoerstellung über einen kurzlebigen E-Mail-Link.';
-$string['auth_magiclinkdescription'] = $string['auth_description'];
+$string['auth_magiclinkdescription'] = 'Allgemeine passwortlose Moodle-Anmeldung und optionale Kontoerstellung über einen kurzlebigen E-Mail-Link.';
 $string['passwordlesslogin'] = 'Mit Magic Link anmelden';
 $string['loginbutton'] = 'Magic Link per E-Mail erhalten';
 $string['loginmethodheading'] = 'Ohne Passwort anmelden';
@@ -22,11 +22,13 @@ $string['loginmethoddescription'] = 'Wir senden Ihnen einen einmalig verwendbare
 $string['loginintro'] = 'Sie erhalten einen einmalig verwendbaren Magic Link. Wenn die Kontoerstellung erlaubt ist und noch kein Konto besteht, ergänzen Sie anschließend nur Ihren Namen.';
 $string['sendlink'] = 'Anmeldelink senden';
 $string['standardlogin'] = 'Mit bestehendem Moodle-Zugang anmelden';
-$string['emailsent'] = 'Wenn die Adresse verwendet werden kann, wurde ein Anmeldelink versendet. Bitte prüfen Sie auch den Spam-Ordner.';
+$string['emailsent'] = 'Wenn Sie sich mit dieser Adresse anmelden können, erhalten Sie in Kürze einen Anmeldelink.';
 $string['emailsubject'] = 'Ihr Anmeldelink für {$a}';
-$string['emailbody'] = 'Öffnen Sie diesen Link, um sich bei {$a->site} anzumelden:' . "\n\n"
-    . '{$a->url}' . "\n\n"
-    . 'Der Link ist {$a->minutes} Minuten gültig und nur einmal verwendbar. Wenn Sie diese Anfrage nicht gestellt haben, ignorieren Sie diese E-Mail.';
+$string['emailbody'] = 'Öffnen Sie diesen Link, um sich bei {$a->site} anzumelden:
+
+{$a->url}
+
+Der Link ist {$a->minutes} Minuten gültig und nur einmal verwendbar. Wenn Sie diese Anfrage nicht gestellt haben, ignorieren Sie diese E-Mail.';
 $string['completeaccount'] = 'Konto vervollständigen';
 $string['completeaccountintro'] = 'Die E-Mail-Adresse {$a} ist bestätigt. Für Ihr neues Konto fehlen nur noch Ihr Vor- und Nachname.';
 $string['createaccountcontinue'] = 'Konto erstellen und fortfahren';
@@ -40,6 +42,7 @@ $string['newaccountsdisabled'] = 'Die Kontoerstellung über Magic Links ist mome
 $string['namesrequired'] = 'Vor- und Nachname sind erforderlich.';
 $string['usernamecollision'] = 'Das Konto konnte nicht eindeutig angelegt werden. Bitte versuchen Sie es erneut.';
 $string['taskcleanuptokens'] = 'Abgelaufene E-Mail-Anmeldelinks löschen';
+$string['tasksendloginlink'] = 'E-Mail-Anmeldelink senden';
 $string['showonloginpage'] = 'Auf der Moodle-Anmeldeseite anzeigen';
 $string['showonloginpage_help'] = 'Ergänzt Magic Link auf der normalen Moodle-Anmeldeseite. Die üblichen Anmeldeverfahren bleiben verfügbar. Aktiviere Magic Link in der Moodle-Authentifizierung, um diese Anmeldung anzubieten.';
 $string['showonloginpage_desc'] = 'Zeigt den Magic-Link-Einstieg zusätzlich zur normalen Moodle-Anmeldung an.';
@@ -58,7 +61,7 @@ $string['mfaadminrecommendation'] = 'Empfehlung: Bei Verwendung einer einzigen E
 $string['settingshelp'] = 'Hilfe zu Magic Link';
 $string['settingshelpmore'] = 'Mehr dazu im Hilfepanel';
 $string['linklifetime_desc'] = 'Zeit in Minuten, nach der ein noch nicht verwendeter Magic Link abläuft.';
-$string['privacy:metadata:auth_magiclink_token'] = 'Kurzlebige Magic Links und die dafür erforderliche E-Mail-Adresse.';
+$string['privacy:metadata:auth_magiclink_token'] = 'Anmeldeanfragen, kurzlebige Magic Links und die zugehörigen E-Mail-Adressen.';
 
 $string['authdisabled'] = 'Magic-Link-Anmeldung ist auf dieser Website deaktiviert. Verwenden Sie eine andere Anmeldemethode.';
 
@@ -72,7 +75,7 @@ $string['settingshelptopic'] = 'Thema';
 
 $string['settingshelp_overview'] = 'Magic Link verwenden';
 
-$string['settingshelp_overview_article'] = '<p>Magic Link ermöglicht die Anmeldung über einen einmal verwendbaren Link per E-Mail. Aktiviere Magic Link in der Moodle-Authentifizierung, um diese Anmeldung anzubieten. Mit „Auf der Moodle-Anmeldeseite anzeigen“ ergänzt Du den Einstieg auf der normalen Anmeldeseite.</p><p>Eine Person fordert den Link für ihre E-Mail-Adresse an und bestätigt die Anmeldung auf der verlinkten Seite. Das bloße Öffnen des E-Mail-Links verbraucht den Link nicht; erst die Bestätigung tut das. Ein ungenutzter Link läuft nach der hier gewählten „Gültigkeitsdauer“ ab.</p><p>Bestehende Konten behalten ihr bisheriges Anmeldeverfahren. Die normalen Moodle-Anmeldewege bleiben verfügbar. Nach erfolgreicher Anmeldung wird ein zulässiges lokales Rücksprungziel beibehalten.</p>';
+$string['settingshelp_overview_article'] = '<p>Magic Link ermöglicht die Anmeldung über einen einmal verwendbaren Link per E-Mail. Aktiviere Magic Link in der Moodle-Authentifizierung, um diese Anmeldung anzubieten. Mit „Auf der Moodle-Anmeldeseite anzeigen“ ergänzt Du den Einstieg auf der normalen Anmeldeseite.</p><p>Eine Person fordert den Link für ihre E-Mail-Adresse an und bestätigt die Anmeldung auf der verlinkten Seite. Das bloße Öffnen des E-Mail-Links verbraucht den Link nicht; erst die Bestätigung tut das. Ein ungenutzter Link läuft nach der hier gewählten „Gültigkeitsdauer“ ab.</p><p>Bestehende Konten behalten ihr bisheriges Anmeldeverfahren. Die normalen Moodle-Anmeldewege bleiben verfügbar. Nach erfolgreicher Anmeldung wird ein zulässiges lokales Rücksprungziel beibehalten.</p><p>Führe Moodle-Cron jede Minute aus, damit angefragte Anmeldelinks zeitnah versendet werden.</p>';
 
 $string['settingshelp_allownewaccounts'] = 'Neue Konten erlauben';
 

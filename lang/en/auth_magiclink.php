@@ -14,7 +14,7 @@
  */
 $string['pluginname'] = 'Magic Link Authentication';
 $string['auth_description'] = 'General passwordless Moodle sign-in and optional account creation using a short-lived email link.';
-$string['auth_magiclinkdescription'] = $string['auth_description'];
+$string['auth_magiclinkdescription'] = 'General passwordless Moodle sign-in and optional account creation using a short-lived email link.';
 $string['passwordlesslogin'] = 'Sign in with a magic link';
 $string['loginbutton'] = 'Get a magic link by email';
 $string['loginmethodheading'] = 'Sign in without a password';
@@ -22,11 +22,13 @@ $string['loginmethoddescription'] = 'We will send you a single-use sign-in link 
 $string['loginintro'] = 'You will receive a single-use magic link. If account creation is enabled and you do not have an account yet, you only need to add your name.';
 $string['sendlink'] = 'Send sign-in link';
 $string['standardlogin'] = 'Sign in with your Moodle account';
-$string['emailsent'] = 'If the address can be used, a sign-in link has been sent. Please also check your spam folder.';
+$string['emailsent'] = 'If you can sign in with this address, you will receive a link shortly.';
 $string['emailsubject'] = 'Your sign-in link for {$a}';
-$string['emailbody'] = 'Open this link to sign in to {$a->site}:' . "\n\n"
-    . '{$a->url}' . "\n\n"
-    . 'The link is valid for {$a->minutes} minutes and can only be used once. Ignore this email if you did not request it.';
+$string['emailbody'] = 'Open this link to sign in to {$a->site}:
+
+{$a->url}
+
+The link is valid for {$a->minutes} minutes and can only be used once. Ignore this email if you did not request it.';
 $string['completeaccount'] = 'Complete your account';
 $string['completeaccountintro'] = 'The email address {$a} is confirmed. Only your first and last name are needed for your new account.';
 $string['createaccountcontinue'] = 'Create account and continue';
@@ -40,6 +42,7 @@ $string['newaccountsdisabled'] = 'Account creation through magic links is curren
 $string['namesrequired'] = 'First and last name are required.';
 $string['usernamecollision'] = 'A unique account could not be created. Please try again.';
 $string['taskcleanuptokens'] = 'Delete expired email sign-in links';
+$string['tasksendloginlink'] = 'Send email sign-in link';
 $string['showonloginpage'] = 'Show on the Moodle Login Page';
 $string['showonloginpage_help'] = 'Adds Magic Link to the standard Moodle login page. The usual sign-in methods remain available. Enable Magic Link in Moodle authentication to offer this method.';
 $string['showonloginpage_desc'] = 'Shows the magic-link entry point alongside the normal Moodle sign-in methods.';
@@ -58,7 +61,7 @@ $string['mfaadminrecommendation'] = 'Recommendation: leave Allow Site Administra
 $string['settingshelp'] = 'Magic Link Help';
 $string['settingshelpmore'] = 'More in the help panel';
 $string['linklifetime_desc'] = 'Time in minutes before an unused magic link expires.';
-$string['privacy:metadata:auth_magiclink_token'] = 'Short-lived magic links and the email address required for them.';
+$string['privacy:metadata:auth_magiclink_token'] = 'Sign-in requests, short-lived magic links and their email addresses.';
 
 $string['authdisabled'] = 'Magic Link sign-in is disabled on this site. Use another sign-in method.';
 
@@ -72,7 +75,7 @@ $string['settingshelptopic'] = 'Topic';
 
 $string['settingshelp_overview'] = 'Using Magic Link';
 
-$string['settingshelp_overview_article'] = '<p>Magic Link provides sign-in through a single-use email link. Enable Magic Link in Moodle authentication to offer this method. Show on the Moodle Login Page adds its entry to the standard login page.</p><p>A person requests a link for their email address and confirms sign-in on the linked page. Merely opening the link does not consume it; submitting confirmation does. An unused link expires after the selected Link Lifetime.</p><p>Existing accounts retain their current authentication method. Standard Moodle sign-in methods remain available. A permitted local return destination is retained after successful sign-in.</p>';
+$string['settingshelp_overview_article'] = '<p>Magic Link provides sign-in through a single-use email link. Enable Magic Link in Moodle authentication to offer this method. Show on the Moodle Login Page adds its entry to the standard login page.</p><p>A person requests a link for their email address and confirms sign-in on the linked page. Merely opening the link does not consume it; submitting confirmation does. An unused link expires after the selected Link Lifetime.</p><p>Existing accounts retain their current authentication method. Standard Moodle sign-in methods remain available. A permitted local return destination is retained after successful sign-in.</p><p>Run Moodle cron every minute so queued sign-in emails are sent promptly.</p>';
 
 $string['settingshelp_allownewaccounts'] = 'Allow New Accounts';
 

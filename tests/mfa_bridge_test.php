@@ -187,6 +187,7 @@ final class mfa_bridge_test extends \advanced_testcase {
         $CFG->noreplyaddress = 'noreply@example.com';
         $sink = $this->redirectEmails();
         magic_link_service::request($USER->email, '/my/', '127.0.0.1');
+        $this->runAdhocTasks(\auth_magiclink\task\send_login_link::class);
         $this->assertCount(1, $sink->get_messages());
         $body = quoted_printable_decode($sink->get_messages()[0]->body);
         preg_match('~[?&]token=([A-Za-z0-9_-]{43})~', $body, $matches);

@@ -17,6 +17,7 @@ namespace auth_magiclink;
 defined('MOODLE_INTERNAL') || die();
 
 use auth_magiclink\local\magic_link_service;
+use auth_magiclink\task\send_login_link;
 
 /** Regression tests for the standalone login and local deep-link contract. */
 final class magic_link_service_test extends \advanced_testcase {
@@ -32,6 +33,8 @@ final class magic_link_service_test extends \advanced_testcase {
         $CFG->noreplyaddress = 'noreply@example.com';
         $sink = $this->redirectEmails();
         magic_link_service::request('new-person@example.com', '/local/supportdesk/index.php', '127.0.0.1');
+        $this->assertCount(0, $sink->get_messages());
+        $this->runAdhocTasks(send_login_link::class);
         $this->assertCount(1, $sink->get_messages());
         $body = quoted_printable_decode($sink->get_messages()[0]->body);
         $document = new \DOMDocument();
@@ -44,6 +47,39 @@ final class magic_link_service_test extends \advanced_testcase {
         $this->assertNotNull($token);
         $this->assertSame('/local/supportdesk/index.php', $token->returnurl);
         $this->assertFalse($DB->record_exists('user', ['email' => 'new-person@example.com']));
+        $sink->close();
+
+        $events = $this->redirectEvents();
+        $user = magic_link_service::consume($token, 'Test', 'Person');
+        $created = array_values(array_filter($events->get_events(), static fn($event) => $event instanceof \core\event\user_created));
+        $events->close();
+        $this->assertCount(1, $created);
+        $this->assertEquals($user->id, $created[0]->objectid);
+    }
+
+    public function test_requests_are_queued_before_account_eligibility_is_checked(): void {
+        global $CFG, $DB;
+
+        $this->resetAfterTest();
+        set_config('auth', 'manual,magiclink');
+        set_config('allownewaccounts', 0, 'auth_magiclink');
+        $CFG->noemailever = false;
+        $CFG->handlebounces = false;
+        $CFG->noreplyaddress = 'noreply@example.com';
+        $user = $this->getDataGenerator()->create_user();
+        $suspended = $this->getDataGenerator()->create_user(['suspended' => 1]);
+        $sink = $this->redirectEmails();
+
+        foreach ([$user->email, $suspended->email, 'unknown@example.invalid'] as $email) {
+            magic_link_service::request($email, '/', '127.0.0.1');
+        }
+
+        $this->assertCount(0, $sink->get_messages());
+        $this->assertCount(3, \core\task\manager::get_adhoc_tasks(send_login_link::class));
+        $this->assertEquals(3, $DB->count_records('auth_magiclink_token'));
+        $this->runAdhocTasks(send_login_link::class);
+        $this->assertCount(1, $sink->get_messages());
+        $this->assertStringContainsString($user->email, $sink->get_messages()[0]->to);
         $sink->close();
     }
 

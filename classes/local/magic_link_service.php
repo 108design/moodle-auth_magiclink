@@ -16,10 +16,13 @@ namespace auth_magiclink\local;
 
 defined('MOODLE_INTERNAL') || die();
 
+use auth_magiclink\task\send_login_link;
+
 /** Creates and consumes single-use email links without exposing account existence. */
 final class magic_link_service {
     private const DEFAULT_TTL = 900;
     private const MAX_REQUESTS_PER_HOUR = 8;
+    private const PENDING_PREFIX = 'pending:';
 
     /** Apply Moodle's provider switch at every entry point, including already issued links. */
     public static function require_enabled(): void {
@@ -29,7 +32,7 @@ final class magic_link_service {
     }
 
     public static function request(string $email, string $returnurl, string $remoteaddress): void {
-        global $CFG, $DB, $SITE;
+        global $DB;
 
         self::require_enabled();
         $email = \core_text::strtolower(trim($email));
@@ -37,58 +40,118 @@ final class magic_link_service {
             throw new \moodle_exception('invalidemail');
         }
         $returnurl = self::safe_return_url($returnurl);
-        $users = self::users_by_email($email);
-        if (count($users) > 1) {
+        $iphash = hash('sha256', "auth_magiclink\0" . $remoteaddress);
+        $factory = \core\lock\lock_config::get_lock_factory('auth_magiclink');
+        $iplock = $factory->get_lock('request-ip:' . $iphash, 2);
+        if (!$iplock) {
             return;
         }
-        if ($users) {
-            $user = reset($users);
-            if (!self::user_allowed($user)) {
+        try {
+            $emaillock = $factory->get_lock('request-email:' . hash('sha256', $email), 2);
+            if (!$emaillock) {
                 return;
             }
-        } else if (!self::account_creation_allowed() || email_is_not_allowed($email)) {
-            return;
+            try {
+                self::queue_request($email, $returnurl, $iphash);
+            } finally {
+                $emaillock->release();
+            }
+        } finally {
+            $iplock->release();
         }
+    }
 
-        $iphash = hash('sha256', "auth_magiclink\0" . $remoteaddress);
+    /** Reserve the request in the same transaction as the task, before checking account eligibility. */
+    private static function queue_request(string $email, string $returnurl, string $iphash): void {
+        global $DB;
+
+        $now = time();
         $recent = $DB->count_records_select('auth_magiclink_token',
             '(email = :email OR requestiphash = :iphash) AND timecreated >= :since', [
                 'email' => $email,
                 'iphash' => $iphash,
-                'since' => time() - HOURSECS,
+                'since' => $now - HOURSECS,
             ]);
         if ($recent >= self::MAX_REQUESTS_PER_HOUR) {
             return;
         }
+
+        $transaction = $DB->start_delegated_transaction();
+        try {
+            $requestid = $DB->insert_record('auth_magiclink_token', (object) [
+                'tokenhash' => self::PENDING_PREFIX . bin2hex(random_bytes(28)),
+                'email' => $email,
+                'returnurl' => $returnurl,
+                'requestiphash' => $iphash,
+                'timeexpires' => $now + self::ttl(),
+                'timecreated' => $now,
+            ]);
+            $task = new send_login_link();
+            $task->set_custom_data(['requestid' => $requestid, 'lang' => current_language()]);
+            if (!\core\task\manager::queue_adhoc_task($task)) {
+                throw new \coding_exception('Unable to queue the Magic Link request.');
+            }
+            $transaction->allow_commit();
+        } catch (\Throwable $exception) {
+            $transaction->rollback($exception);
+        }
+    }
+
+    /** Process a queued request. The queue holds a record ID and language, never a login secret. */
+    public static function deliver_request(int $requestid, string $lang): void {
+        global $DB, $SITE;
+
+        $request = $DB->get_record('auth_magiclink_token', ['id' => $requestid]);
+        if (!$request || !str_starts_with($request->tokenhash, self::PENDING_PREFIX)
+                || !empty($request->timeused)) {
+            return;
+        }
+        if (!is_enabled_auth('magiclink') || (int) $request->timeexpires < time()
+                || !self::email_allowed($request->email)) {
+            $DB->set_field('auth_magiclink_token', 'timeused', time(), ['id' => $requestid]);
+            return;
+        }
+
         $token = self::base64url(random_bytes(32));
-        $now = time();
-        $tokenid = $DB->insert_record('auth_magiclink_token', (object) [
-            'tokenhash' => hash('sha256', $token),
-            'email' => $email,
-            'returnurl' => $returnurl,
-            'requestiphash' => $iphash,
-            'timeexpires' => $now + self::ttl(),
-            'timecreated' => $now,
-        ]);
+        $ttl = self::ttl();
         $url = new \moodle_url('/auth/magiclink/confirm.php', ['token' => $token]);
-        $recipient = self::recipient($email);
-        $subject = get_string('emailsubject', 'auth_magiclink', format_string($SITE->shortname));
-        $text = get_string('emailbody', 'auth_magiclink', [
+        $recipient = self::recipient($request->email);
+        $strings = get_string_manager();
+        $subject = $strings->get_string('emailsubject', 'auth_magiclink', format_string($SITE->shortname), $lang);
+        $body = $strings->get_string('emailbody', 'auth_magiclink', [
             'site' => format_string($SITE->fullname),
             'url' => $url->out(false),
-            'minutes' => (int) (self::ttl() / MINSECS),
+            'minutes' => (int) ($ttl / MINSECS),
+        ], $lang);
+        $html = str_replace(s($url->out(false)), \html_writer::link($url, s($url->out(false))),
+            text_to_html(s($body), false, false, true));
+
+        // An ad hoc task retry must not create a second link after an attempted delivery.
+        $DB->update_record('auth_magiclink_token', (object) [
+            'id' => $requestid,
+            'tokenhash' => hash('sha256', $token),
+            'timeexpires' => time() + $ttl,
         ]);
         $sent = false;
         try {
-            $sent = email_to_user($recipient, \core_user::get_noreply_user(), $subject, $text,
-                str_replace(s($url->out(false)), \html_writer::link($url, s($url->out(false))),
-                    text_to_html(s($text), false, false, true)));
+            $sent = email_to_user($recipient, \core_user::get_noreply_user(), $subject, $body, $html);
         } finally {
             if (!$sent) {
                 // Keep the request for rate limiting, but never accept an undelivered login token.
-                $DB->set_field('auth_magiclink_token', 'timeused', time(), ['id' => $tokenid]);
+                $DB->set_field('auth_magiclink_token', 'timeused', time(), ['id' => $requestid]);
             }
         }
+    }
+
+    private static function email_allowed(string $email): bool {
+        $users = self::users_by_email($email);
+        if (count($users) > 1) {
+            return false;
+        }
+        if ($users) {
+            return self::user_allowed(reset($users));
+        }
+        return self::account_creation_allowed() && !email_is_not_allowed($email);
     }
 
     public static function token(string $raw): ?\stdClass {
@@ -147,7 +210,8 @@ final class magic_link_service {
 
         self::require_enabled();
         $token = $DB->get_record('auth_magiclink_token', ['id' => $token->id], '*', MUST_EXIST);
-        if (!empty($token->timeused) || (int) $token->timeexpires < time()) {
+        if (!empty($token->timeused) || (int) $token->timeexpires < time()
+                || str_starts_with($token->tokenhash, self::PENDING_PREFIX)) {
             throw new \moodle_exception('tokeninvalid', 'auth_magiclink');
         }
         $users = self::users_by_email((string) $token->email);
@@ -181,7 +245,7 @@ final class magic_link_service {
                 'lang' => current_language(),
                 'timezone' => '99',
             ];
-            $user->id = user_api::create($user, false, false);
+            $user->id = user_api::create($user, false, true);
             $user = $DB->get_record('user', ['id' => $user->id], '*', MUST_EXIST);
         }
         $DB->set_field('auth_magiclink_token', 'timeused', time(), ['id' => $token->id]);

@@ -28,6 +28,7 @@ final class user_api_test extends \advanced_testcase {
         $CFG->divertallemailsto = 'invalid-address';
         $sink = $this->redirectEmails();
         \auth_magiclink\local\magic_link_service::request('undelivered@example.test', '/', '127.0.0.1');
+        $this->runAdhocTasks(\auth_magiclink\task\send_login_link::class);
         $this->assertDebuggingCalled();
         $this->assertCount(0, $sink->get_messages());
         $this->assertSame(1, $DB->count_records('auth_magiclink_token'));
@@ -35,7 +36,7 @@ final class user_api_test extends \advanced_testcase {
         $this->assertFalse($DB->record_exists('user', ['email' => 'undelivered@example.test']));
     }
 
-    public function test_new_magiclink_account_has_no_password_event_and_token_is_single_use(): void {
+    public function test_new_magiclink_account_has_no_password_and_emits_creation_event(): void {
         global $CFG, $DB;
         $this->resetAfterTest();
         set_config('auth', 'manual,magiclink');
@@ -53,7 +54,7 @@ final class user_api_test extends \advanced_testcase {
         $this->assertNotEmpty($DB->get_field('auth_magiclink_token', 'timeused', ['id' => $token->id]));
         $createdevents = array_filter($events->get_events(), static fn($event) =>
             $event instanceof \core\event\user_created);
-        $this->assertCount(0, $createdevents);
+        $this->assertCount(1, $createdevents);
         $this->expectException(\moodle_exception::class);
         \auth_magiclink\local\magic_link_service::consume($token, 'Test', 'Person');
     }
