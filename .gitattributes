@@ -44,6 +44,7 @@
 "/classes/privacy/provider.php" -export-ignore -export-subst
 "/classes/task" -export-ignore -export-subst
 "/classes/task/cleanup_tokens.php" -export-ignore -export-subst
+"/classes/task/send_login_link.php" -export-ignore -export-subst
 "/confirm.php" -export-ignore -export-subst
 "/db" -export-ignore -export-subst
 "/db/hooks.php" -export-ignore -export-subst
