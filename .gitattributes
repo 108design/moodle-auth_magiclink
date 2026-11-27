@@ -59,6 +59,8 @@
 "/lang" -export-ignore -export-subst
 "/lang/de" -export-ignore -export-subst
 "/lang/de/auth_magiclink.php" -export-ignore -export-subst
+"/lang/de_du" -export-ignore -export-subst
+"/lang/de_du/auth_magiclink.php" -export-ignore -export-subst
 "/lang/en" -export-ignore -export-subst
 "/lang/en/auth_magiclink.php" -export-ignore -export-subst
 "/lib.php" -export-ignore -export-subst
